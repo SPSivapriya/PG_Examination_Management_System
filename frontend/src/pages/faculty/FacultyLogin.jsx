@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const FacultyLogin = () => {
-  const navigate = useNavigate();
   const [facultyId, setFacultyId] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,19 +14,34 @@ const FacultyLogin = () => {
       setError('Please enter your Faculty ID');
       return;
     }
-
     setError('');
     setLoading(true);
-
     try {
-      const response = await axios.get(`/api/faculty/${facultyId}`);
-      if (response.data) {
-        localStorage.setItem('loggedInFaculty', JSON.stringify(response.data));
-        localStorage.setItem('facultyId', response.data.facultyId);
+      // Try faculty collection first
+      let res = null;
+      try {
+        res = await axios.get(`/api/faculty/${facultyId}`);
+        localStorage.setItem('loggedInFaculty', JSON.stringify(res.data));
         navigate('/faculty/dashboard');
+        return;
+      } catch (err) {
+        // Not found in faculty collection, try users collection
       }
-    } catch (error) {
-      setError('Invalid Faculty ID');
+      // Try users collection
+      try {
+        const userRes = await axios.get(`/api/users/${facultyId}`);
+        if (userRes.data && userRes.data.role === 'faculty') {
+          // Patch the object to include facultyId for dashboard compatibility
+          const userObj = { ...userRes.data, facultyId: userRes.data.userId };
+          localStorage.setItem('loggedInFaculty', JSON.stringify(userObj));
+          navigate('/faculty/dashboard');
+          return;
+        } else {
+          setError('Invalid Faculty ID');
+        }
+      } catch (err) {
+        setError('Invalid Faculty ID');
+      }
     } finally {
       setLoading(false);
     }
@@ -69,8 +84,8 @@ const FacultyLogin = () => {
             </button>
             <button
               type="submit"
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               disabled={loading}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>

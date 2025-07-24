@@ -11,7 +11,13 @@ const InvigilationDuty = () => {
   useEffect(() => {
     const fetchDutiesAndStatus = async () => {
       try {
-        const facultyId = localStorage.getItem('facultyId');
+        const loggedInFaculty = localStorage.getItem('loggedInFaculty');
+        let facultyId = null;
+        if (loggedInFaculty) {
+          try {
+            facultyId = JSON.parse(loggedInFaculty).facultyId;
+          } catch {}
+        }
         if (!facultyId) {
           setError('Faculty ID not found. Please log in again.');
           setLoading(false);
@@ -39,7 +45,13 @@ const InvigilationDuty = () => {
   }, []);
 
   const handleStatus = async (dutyId, status) => {
-    const facultyId = localStorage.getItem('facultyId');
+    const loggedInFaculty = localStorage.getItem('loggedInFaculty');
+    let facultyId = null;
+    if (loggedInFaculty) {
+      try {
+        facultyId = JSON.parse(loggedInFaculty).facultyId;
+      } catch {}
+    }
     if (!facultyId) return;
     setStatusLoading(prev => ({ ...prev, [dutyId]: true }));
     try {

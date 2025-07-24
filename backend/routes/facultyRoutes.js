@@ -99,6 +99,39 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Update faculty by facultyId
+router.put('/:facultyId', async (req, res) => {
+  try {
+    const faculty = await Faculty.findOne({ facultyId: req.params.facultyId });
+    if (!faculty) {
+      return res.status(404).json({ message: 'Faculty member not found' });
+    }
+    Object.assign(faculty, req.body);
+    const updatedFaculty = await faculty.save();
+    res.json(updatedFaculty);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Upsert (create or update) faculty profile by facultyId
+router.post('/update-profile', async (req, res) => {
+  try {
+    const { facultyId, ...rest } = req.body;
+    if (!facultyId) {
+      return res.status(400).json({ message: 'facultyId is required' });
+    }
+    const updated = await Faculty.findOneAndUpdate(
+      { facultyId },
+      { $set: { facultyId, ...rest } },
+      { upsert: true, new: true }
+    );
+    res.json({ message: 'Profile updated successfully', faculty: updated });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // Delete faculty member
 router.delete('/:id', async (req, res) => {
   try {

@@ -92,55 +92,36 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Register new faculty (admin only)
-router.post('/register', adminAuth, async (req, res) => {
+// Public registration route
+router.post('/register', async (req, res) => {
+  console.log('POST /api/register hit', req.body);
   try {
-    const {
-      name,
-      email,
-      password,
-      department,
-      employeeId,
-      bankAccount,
-      ifscCode
-    } = req.body;
+    const { userId, name, email, password, role } = req.body;
 
-    const existingUser = await User.findOne({
-      $or: [{ email }, { employeeId }]
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        error: 'User with this email or employee ID already exists'
-      });
+    // Validate required fields
+    if (!userId || !name || !email || !password || !role) {
+      return res.status(400).json({ error: 'All fields are required.' });
     }
 
+    // Check for duplicate userId or email
+    const existingUser = await User.findOne({ $or: [{ userId }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this userId or email already exists.' });
+    }
+
+    // Create and save new user
     const user = new User({
+      userId,
       name,
       email,
       password,
-      department,
-      employeeId,
-      userId: employeeId,
-      bankAccount,
-      ifscCode,
-      role: 'faculty'
+      role
     });
-
     await user.save();
 
-    res.status(201).json({
-      message: 'Faculty registered successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-        employeeId: user.employeeId
-      }
-    });
+    res.status(201).json({ message: 'Registration successful. You can now log in.' });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

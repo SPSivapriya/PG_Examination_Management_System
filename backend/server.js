@@ -32,6 +32,8 @@ app.use('/api/evaluation-letter', require('./routes/evaluationLetterRoutes'));
 app.use('/api/seating-arrangement', require('./routes/seatingArrangementRoutes'));
 app.use('/api/letters', require('./routes/letterRoutes'));
 app.use('/api/coordinator', require('./routes/coordinatorRoutes'));
+app.use('/api/users', require('./routes/usersRoutes'));
+app.use('/api', require('./routes/authRoutes'));
 
 // Test route
 app.get('/api/test', (req, res) => {

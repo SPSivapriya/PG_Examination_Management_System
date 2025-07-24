@@ -30,6 +30,12 @@ import DutyAssignment from './pages/DutyAssignment';
 import AnswerSheetRequest from './pages/AnswerSheetRequest';
 import SettlementAllPages from './pages/SettlementAllPages';
 import AboutPage from './pages/AboutPage';
+import Login from './pages/Login';
+import HODLogin from './pages/hod/HODLogin';
+import FacultyRegister from './pages/faculty/FacultyRegister';
+import UpdateProfile from './pages/faculty/UpdateProfile';
+import ResetPassword from './pages/hod/ResetPassword';
+import CoordinatorResetPassword from './pages/CoordinatorResetPassword';
 
 // Create a wrapper component to handle role-based routing
 const AppContent = () => {
@@ -54,22 +60,27 @@ const AppContent = () => {
     }
   }, [userRole, location.pathname, navigate]);
 
-  // Show navbar for non-dashboard, non-faculty, non-hod pages
+  // Show navbar for non-dashboard, non-faculty, non-hod pages, and not on /login
   const dashboardPaths = [
     '/dashboard', '/sessions', '/student-input', '/assign-qpsetter', '/dashboard/seating-arrangement', '/duties', '/claims', '/letters', '/users', '/settlement-all-pages'
   ];
   const showNavbar = location.pathname !== '/' &&
     location.pathname !== '/about' &&
+    location.pathname !== '/login' &&
     !location.pathname.startsWith('/faculty') &&
     !location.pathname.startsWith('/hod') &&
+    location.pathname !== '/coordinator/reset-password' &&
     !dashboardPaths.includes(location.pathname);
 
   return (
     <>
       {showNavbar && <Navbar />}
-      <div className="container mx-auto px-4 py-8">
+      <div className={location.pathname === '/login' ? '' : 'container mx-auto px-4 py-8'}>
         <Routes>
           <Route path="/" element={<RoleSelect />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/hod/login" element={<HODLogin />} />
+          <Route path="/faculty/register" element={<FacultyRegister />} />
           
           {/* Main Dashboard Route */}
           <Route path="/dashboard" element={<Dashboard />} />
@@ -82,6 +93,7 @@ const AppContent = () => {
             <Route path="assign-qpsetter" element={<AssignQpSetter />} />
             <Route path="letters" element={<Letters />} />
             <Route path="signoff" element={<SignOff />} />
+            <Route path="reset-password" element={<ResetPassword />} />
           </Route>
 
           {/* Faculty Routes */}
@@ -95,6 +107,7 @@ const AppContent = () => {
             <Route path="invigilation-duty" element={<FacultyInvigilationDuty />} />
             <Route path="evaluator-details" element={<EvaluatorDetails />} />
             <Route path="release-claim" element={<ReleaseClaim />} />
+            <Route path="update-profile" element={<UpdateProfile />} />
           </Route>
 
           {/* Admin Routes */}
@@ -107,6 +120,7 @@ const AppContent = () => {
           <Route path="/assign-qpsetter" element={<AssignQPSetterTopLevel />} />
           <Route path="/letters" element={<AnswerSheetRequest />} />
           <Route path="/settlement-all-pages" element={<SettlementAllPages />} />
+          <Route path="/coordinator/reset-password" element={<CoordinatorResetPassword />} />
         </Routes>
       </div>
     </>

@@ -7,6 +7,7 @@ const menuItems = [
   { path: '/hod/consolidated-sessions', label: 'View Consolidated Sessions', icon: '📊' },
   { path: '/hod/assign-qpsetter', label: 'Assign Faculty for QP Setting', icon: '👥' },
   { path: '/hod/letters', label: 'View Letters', icon: '📈' },
+  { path: '/hod/reset-password', label: 'Reset Password', icon: '🔑' },
   { path: '/logout', label: 'Logout', icon: '🚪' },
 ];
 

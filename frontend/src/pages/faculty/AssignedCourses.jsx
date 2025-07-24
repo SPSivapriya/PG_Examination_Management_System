@@ -23,17 +23,16 @@ const AssignedCourses = () => {
         const facultyInfo = JSON.parse(loggedInFaculty);
         console.log('Parsed faculty info:', facultyInfo); // Debug log
 
-        if (!facultyInfo.course) {
+        // Handle course as string or array
+        const courseNames = Array.isArray(facultyInfo.course) ? facultyInfo.course : [facultyInfo.course];
+        if (!courseNames[0]) {
           setError('No course assigned to faculty');
           setLoading(false);
           return;
         }
 
-        // Fetch course data from backend
+        // Fetch all sessions
         const response = await axios.get(`http://localhost:5000/api/sessions`, {
-          params: {
-            courseName: facultyInfo.course
-          },
           headers: {
             'Content-Type': 'application/json',
           }
@@ -42,9 +41,9 @@ const AssignedCourses = () => {
         console.log('API Response:', response.data); // Debug log
         
         if (response.data && response.data.length > 0) {
-          // Get the first session with matching course name
+          // Find the first session with a matching course name
           const courseSession = response.data.find(session => 
-            session.courseName === facultyInfo.course
+            courseNames.includes(session.courseName)
           );
           
           if (courseSession) {
@@ -58,7 +57,6 @@ const AssignedCourses = () => {
         } else {
           setError('Course not found in sessions list');
         }
-        
         setLoading(false);
       } catch (err) {
         console.error('API Error:', err); // Debug log

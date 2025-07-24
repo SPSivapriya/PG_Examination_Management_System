@@ -22,6 +22,7 @@ const menuItems = [
   { path: '/duties', label: 'Duties', icon: <span className="mr-2">📋</span> },
   { path: '/claims', label: 'Claims', icon: <span className="mr-2">💰</span> },
   { path: '/letters', label: 'Letters', icon: <span className="mr-2">✉️</span> },
+  { path: '/coordinator/reset-password', label: 'Coordinator Reset Password', icon: <span className="mr-2">🔑</span> },
   { path: '/logout', label: 'Logout', icon: <span className="mr-2">🚪</span> },
 ];
 

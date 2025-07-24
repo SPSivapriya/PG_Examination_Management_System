@@ -7,6 +7,7 @@ const menuItems = [
   { path: 'assigned-courses', label: 'View Assigned Courses', icon: '📚' },
   { path: 'qp-orders', label: 'View/Download QP Orders', icon: '📄' },
   { path: 'invigilation-duty', label: 'View Invigilation Duty', icon: '👥' },
+  { path: 'update-profile', label: 'Update Profile', icon: '📝' },
   { path: '/logout', label: 'Logout', icon: '🚪' },
 ];
 
