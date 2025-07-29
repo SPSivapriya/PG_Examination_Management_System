@@ -67,7 +67,7 @@ const AboutPage = () => {
         </div>
         {/* Footer Note */}
         <footer className="mt-10 text-center text-gray-500 text-base font-medium pt-6 border-t border-blue-100">
-       <i>This portal was built during a summer internship by students from the Department of Computer Science and Engineering, Anna University.</i> 
+       <i>This portal was built during a summer internship by students from the Department of Computer Science and Engineering, Anna University!!!</i> 
         </footer>
       </div>
     </div>
