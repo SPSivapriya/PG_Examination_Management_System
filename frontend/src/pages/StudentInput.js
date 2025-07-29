@@ -2,18 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import Sidebar from '../components/layouts/PageLayout';
-
-const menuItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: <span className="mr-2">🏠</span> },
-  { path: '/sessions', label: 'Sessions', icon: <span className="mr-2">📅</span> },
-  { path: '/student-input', label: 'Student Input', icon: <span className="mr-2">👨‍🎓</span> },
-  { path: '/assign-qpsetter', label: 'Assign QP Setter', icon: <span className="mr-2">📝</span> },
-  { path: '/dashboard/seating-arrangement', label: 'Seating Arrangement', icon: <span className="mr-2">🪑</span> },
-  { path: '/duties', label: 'Duties', icon: <span className="mr-2">📋</span> },
-  { path: '/claims', label: 'Claims', icon: <span className="mr-2">💰</span> },
-  { path: '/letters', label: 'Letters', icon: <span className="mr-2">✉️</span> },
-  { path: '/logout', label: 'Logout', icon: <span className="mr-2">🚪</span> },
-];
+import coordinatorSidebarMenu from '../data/sidebarMenu';
 
 const StudentInput = () => {
   const [sessions, setSessions] = useState([]);
@@ -235,7 +224,7 @@ const StudentInput = () => {
   const totalMIT = (parseInt(formData.mitRegular) || 0) + (parseInt(formData.mitArrear) || 0);
 
   return (
-    <Sidebar menuItems={menuItems} theme="bg-white text-gray-900" activeClass="bg-blue-100 text-blue-700">
+    <Sidebar menuItems={coordinatorSidebarMenu} theme="bg-white text-gray-900" activeClass="bg-blue-100 text-blue-700">
       <div className="max-w-4xl mx-auto p-6">
         <motion.div
           initial={{ opacity: 0, y: 24 }}

@@ -5,6 +5,7 @@ import { jsPDF } from 'jspdf';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Sidebar from '../components/layouts/PageLayout';
+import coordinatorSidebarMenu from '../data/sidebarMenu';
 
 const API_BASE = 'http://localhost:5000';
 
@@ -20,18 +21,6 @@ const statusColor = {
   'Not Approved': 'text-red-600 font-semibold',
   'Pending': 'text-gray-500 font-semibold'
 };
-
-const menuItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: <span className="mr-2">🏠</span> },
-  { path: '/sessions', label: 'Sessions', icon: <span className="mr-2">📅</span> },
-  { path: '/student-input', label: 'Student Input', icon: <span className="mr-2">👨‍🎓</span> },
-  { path: '/assign-qpsetter', label: 'Assign QP Setter', icon: <span className="mr-2">📝</span> },
-  { path: '/dashboard/seating-arrangement', label: 'Seating Arrangement', icon: <span className="mr-2">🪑</span> },
-  { path: '/duties', label: 'Duties', icon: <span className="mr-2">📋</span> },
-  { path: '/claims', label: 'Claims', icon: <span className="mr-2">💰</span> },
-  { path: '/letters', label: 'Letters', icon: <span className="mr-2">✉️</span> },
-  { path: '/logout', label: 'Logout', icon: <span className="mr-2">🚪</span> },
-];
 
 const Claims = () => {
   const [claims, setClaims] = useState([]);
@@ -136,7 +125,7 @@ const Claims = () => {
   };
 
   return (
-    <Sidebar menuItems={menuItems} theme="bg-white text-gray-900" activeClass="bg-blue-100 text-blue-700">
+    <Sidebar menuItems={coordinatorSidebarMenu} theme="bg-white text-gray-900" activeClass="bg-blue-100 text-blue-700">
       <div className="max-w-6xl mx-auto p-6">
         <motion.div
           initial={{ opacity: 0, y: 32 }}

@@ -36,6 +36,7 @@ import FacultyRegister from './pages/faculty/FacultyRegister';
 import UpdateProfile from './pages/faculty/UpdateProfile';
 import ResetPassword from './pages/hod/ResetPassword';
 import CoordinatorResetPassword from './pages/CoordinatorResetPassword';
+import UserManual from './components/UserManual';
 
 // Create a wrapper component to handle role-based routing
 const AppContent = () => {
@@ -123,6 +124,7 @@ const AppContent = () => {
           <Route path="/coordinator/reset-password" element={<CoordinatorResetPassword />} />
         </Routes>
       </div>
+      <UserManual />
     </>
   );
 };
