@@ -16,7 +16,7 @@ const Login = () => {
       return;
     }
     try {
-      const res = await axios.post('/api/users/coordinator/login', { email, password });
+      const res = await axios.post('http://localhost:5000/api/users/coordinator/login', { email, password });
       if (res.data && res.data.success) {
         navigate('/dashboard');
       } else {

@@ -17,6 +17,9 @@ const DutyAssignment = () => {
     const [manualFacultySelection, setManualFacultySelection] = useState({});
     const [statusMap, setStatusMap] = useState({});
     const [statusLoading, setStatusLoading] = useState({});
+    const [reassigningDuty, setReassigningDuty] = useState(null);
+    const [reassignFacultyId, setReassignFacultyId] = useState('');
+    const [allFaculty, setAllFaculty] = useState([]);
 
     const fetchAllDuties = () => {
         axios.get('/api/duties')
@@ -29,9 +32,19 @@ const DutyAssignment = () => {
             });
     };
 
+    const fetchAllFaculty = async () => {
+        try {
+            const response = await axios.get('/api/faculty');
+            setAllFaculty(response.data);
+        } catch (error) {
+            console.error('Error fetching faculty:', error);
+        }
+    };
+
     useEffect(() => {
         // Fetch initial data
         fetchAllDuties();
+        fetchAllFaculty();
         axios.get('/api/duties/dates')
             .then(response => {
                 setDateSessions(response.data);
@@ -217,6 +230,71 @@ const DutyAssignment = () => {
         }
     };
 
+    const handleReassignDuty = async (dutyId) => {
+        if (!reassignFacultyId) {
+            alert('Please select a faculty to reassign.');
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+        try {
+            const duty = allAssignedDuties.find(d => d._id === dutyId);
+            if (!duty) throw new Error('Duty not found');
+
+            // Get faculty details
+            const facultyRes = await axios.get(`/api/faculty/${reassignFacultyId}`);
+            const newFaculty = facultyRes.data;
+
+            // Create new duty assignment
+            const newDuty = {
+                facultyId: newFaculty.facultyId,
+                facultyName: newFaculty.name,
+                room: duty.room,
+                date: duty.date,
+                session: duty.session
+            };
+
+            // Delete the old duty
+            await axios.delete(`/api/duties/${dutyId}`);
+            
+            // Clear the completed duty status for the old duty
+            try {
+                await axios.delete(`/api/duties/completed-duties/${dutyId}`);
+            } catch (err) {
+                // Ignore error if no completed duty record exists
+            }
+            
+            // Save new duty assignment
+            const response = await axios.post('/api/duties', [newDuty]);
+            
+            // Remove the old duty from the list
+            setAllAssignedDuties(prevDuties => prevDuties.filter(d => d._id !== dutyId));
+            
+            // Add the new duty to the list
+            setAllAssignedDuties(prevDuties => [...prevDuties, ...response.data]);
+            
+            // Remove the old duty from status map
+            setStatusMap(prev => {
+                const newMap = { ...prev };
+                delete newMap[dutyId];
+                return newMap;
+            });
+            
+            // Reset reassignment state
+            setReassigningDuty(null);
+            setReassignFacultyId('');
+            
+            alert(`Duty successfully reassigned to ${newFaculty.name}!`);
+        } catch (error) {
+            console.error('Error reassigning duty:', error);
+            setError('Failed to reassign duty.');
+            alert('Failed to reassign duty.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
         const [year, month, day] = dateStr.split('T')[0].split('-');
@@ -285,7 +363,7 @@ const DutyAssignment = () => {
                                     <thead className="bg-gray-50">
                                         <tr>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty Name</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty ID</th>
+                                            {/*<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty ID</th>*/}
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Room</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Count</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -318,7 +396,7 @@ const DutyAssignment = () => {
                                                         ))}
                                                     </select>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{duty.facultyId}</td>
+                                                {/*<td className="px-6 py-4 whitespace-nowrap">{duty.facultyId}</td>*/}
                                                 <td className="px-6 py-4 whitespace-nowrap">{duty.room}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{duty.studentCount}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{formatDate(duty.date)}</td>
@@ -373,7 +451,56 @@ const DutyAssignment = () => {
                                                 {statusMap[duty._id] === 'completed' ? (
                                                     <span className="text-green-600 font-semibold">Completed</span>
                                                 ) : statusMap[duty._id] === 'not completed' ? (
-                                                    <span className="text-red-600 font-semibold">Not Completed</span>
+                                                    <div className="space-y-2">
+                                                        <span className="text-red-600 font-semibold block">Not Completed</span>
+                                                        {reassigningDuty === duty._id ? (
+                                                            <div className="space-y-2">
+                                                                <select
+                                                                    value={reassignFacultyId}
+                                                                    onChange={(e) => setReassignFacultyId(e.target.value)}
+                                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                                                    disabled={isLoading}
+                                                                >
+                                                                    <option value="">Select Faculty</option>
+                                                                    {allFaculty
+                                                                        .filter(f => f.facultyId !== duty.facultyId)
+                                                                        .map(faculty => (
+                                                                            <option key={faculty.facultyId} value={faculty.facultyId}>
+                                                                                {faculty.name}
+                                                                            </option>
+                                                                        ))
+                                                                    }
+                                                                </select>
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onClick={() => handleReassignDuty(duty._id)}
+                                                                        disabled={isLoading || !reassignFacultyId}
+                                                                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 disabled:opacity-50"
+                                                                    >
+                                                                        Confirm
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setReassigningDuty(null);
+                                                                            setReassignFacultyId('');
+                                                                        }}
+                                                                        disabled={isLoading}
+                                                                        className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 disabled:opacity-50"
+                                                                    >
+                                                                        Cancel
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => setReassigningDuty(duty._id)}
+                                                                disabled={isLoading}
+                                                                className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
+                                                            >
+                                                                Re-assign
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 ) : (
                                                     <div className="flex gap-2">
                                                         <button

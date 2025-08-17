@@ -54,12 +54,11 @@ router.patch('/:id', async (req, res) => {
 // Delete a duty
 router.delete('/:id', async (req, res) => {
   try {
-    const duty = await Duty.findById(req.params.id);
+    const duty = await Duty.findByIdAndDelete(req.params.id);
     if (!duty) {
       return res.status(404).json({ message: 'Duty not found' });
     }
 
-    await duty.remove();
     res.json({ message: 'Duty deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -234,6 +233,21 @@ router.post('/completed-duties', async (req, res) => {
     } catch (error) {
         console.error('Error marking duty:', error);
         res.status(500).json({ message: 'Server error while marking duty.' });
+    }
+});
+
+// DELETE: Remove completed duty record
+router.delete('/completed-duties/:dutyId', async (req, res) => {
+    try {
+        const { dutyId } = req.params;
+        const result = await CompletedDuty.findOneAndDelete({ dutyId });
+        if (!result) {
+            return res.status(404).json({ message: 'Completed duty record not found' });
+        }
+        res.status(200).json({ message: 'Completed duty record removed successfully' });
+    } catch (error) {
+        console.error('Error removing completed duty record:', error);
+        res.status(500).json({ message: 'Server error while removing completed duty record.' });
     }
 });
 
